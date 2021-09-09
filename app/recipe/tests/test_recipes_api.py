@@ -40,16 +40,17 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_retrieve_recipes(self):
         """Test retrieving list of recipes"""
-        sample_recipe()
-        sample_recipe()
+        recipe1 = sample_recipe(name='Apple strudel', description='123')
+        recipe2 = sample_recipe(name='Rhubarb pie', description='456')
 
         res = self.client.get(RECIPES_URL)
 
-        recipes = Recipe.objects.all().order_by('-id')
-        serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(len(res.data), 2)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(recipe2.name, res.data[0]['name'])
+        self.assertEqual(recipe2.description, res.data[0]['description'])
+        self.assertEqual(recipe1.name, res.data[1]['name'])
+        self.assertEqual(recipe1.description, res.data[1]['description'])
 
     def test_retrive_recipes_by_name(self):
         """Test retrieving a list of recipes filtered by name"""
@@ -144,6 +145,7 @@ class PrivateRecipeApiTests(TestCase):
     def test_delete_recipe(self):
         """Test deleing a recipe with given ID"""
         recipe = sample_recipe()
+        recipe.ingredients.add(sample_ingredient(recipe=recipe))
 
         url = detail_url(recipe.id)
         self.client.delete(url)

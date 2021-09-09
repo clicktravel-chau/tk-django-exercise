@@ -41,13 +41,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             'description', instance.description)
         instance.save()
 
-        recipe = Recipe.objects.filter(id=self.instance.id)
-        ingredients = Ingredient.objects.filter(recipe_id=recipe[0].id)
-        for ingredient in ingredients:
-            Ingredient.objects.filter(id=ingredient.id).delete()
+        Ingredient.objects.filter(recipe_id=self.instance.id).delete()
 
+        recipe = Recipe.objects.get(id=self.instance.id)
         for ingredient in ingredients_data:
-            Ingredient.objects.create(**ingredient, recipe=recipe[0])
+            Ingredient.objects.create(**ingredient, recipe=recipe)
 
         return instance
 
